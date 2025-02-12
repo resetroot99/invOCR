@@ -5,7 +5,7 @@ export default function Hero() {
   return (
     <div className="text-center space-y-6">
       <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-        invOCR.ai - Transform Your Invoice Processing
+        InvOCR - Transform Your Invoice Processing
       </h1>
       <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
         Streamline your auto repair shop's workflow with AI-powered invoice processing. Save time, reduce errors, and improve efficiency.

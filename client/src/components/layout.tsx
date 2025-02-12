@@ -27,7 +27,7 @@ export default function Layout({ children }: SidebarProps) {
             <div className="px-3 py-2">
               <Link href="/">
                 <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-                  invOCR.ai
+                  InvOCR
                 </h2>
               </Link>
               <div className="space-y-1">

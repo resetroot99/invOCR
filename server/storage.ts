@@ -23,22 +23,22 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
+  async createUser(user: InsertUser): Promise<User> {
+    const [result] = await db.insert(users).values(user).returning();
+    return result;
   }
 
   async getInvoices(): Promise<Invoice[]> {
     return await db.select().from(invoices).orderBy(invoices.createdAt);
   }
 
-  async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
-    const [invoice] = await db.insert(invoices).values(insertInvoice).returning();
-    return invoice;
+  async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
+    const [result] = await db.insert(invoices).values(invoice).returning();
+    return result;
   }
 
   async updateInvoice(id: number, data: Partial<Invoice>): Promise<Invoice> {
-    const [invoice] = await db
+    const [result] = await db
       .update(invoices)
       .set({
         ...data,
@@ -46,7 +46,7 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(invoices.id, id))
       .returning();
-    return invoice;
+    return result;
   }
 }
 

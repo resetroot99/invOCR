@@ -1,29 +1,59 @@
-import { pgTable, text, serial, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const invoices = pgTable("invoices", {
   id: serial("id").primaryKey(),
   filename: text("filename").notNull(),
-  status: text("status").notNull().default("processing"),
-  data: jsonb("data"),
+  status: text("status", { 
+    enum: ['processing', 'completed', 'failed', 'pending_verification'] 
+  }).notNull().default("processing"),
+  fileType: text("file_type", {
+    enum: ['pdf', 'jpg', 'png']
+  }).notNull().default('pdf'),
+  data: jsonb("data").$type<{
+    invoiceNumber?: string;
+    roNumber?: string;
+    date?: string;
+    totalAmount?: number;
+    parts?: Array<{
+      partNumber: string;
+      description: string;
+      price: number;
+      verified: boolean;
+    }>;
+    notes?: string;
+    drpCompliant?: boolean;
+    ocrConfidence?: number;
+  }>(),
+  processingErrors: text("processing_errors").array(),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  role: text("role", {
+    enum: ['admin', 'user', 'viewer']
+  }).notNull().default("user"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertInvoiceSchema = createInsertSchema(invoices).pick({
-  filename: true,
-});
+// Schema for invoice insertion
+export const insertInvoiceSchema = createInsertSchema(invoices)
+  .pick({
+    filename: true,
+    fileType: true,
+  });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
+// Schema for user insertion
+export const insertUserSchema = createInsertSchema(users)
+  .pick({
+    username: true,
+    password: true,
+  });
 
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type Invoice = typeof invoices.$inferSelect;

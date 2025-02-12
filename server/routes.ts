@@ -35,6 +35,12 @@ function getFileType(mimetype: string): 'pdf' | 'jpg' | 'png' {
   }
 }
 
+// Check if message contains invoice markers
+function hasInvoiceMarkers(message: string): boolean {
+  const markers = ['INV', 'RO'];
+  return markers.some(marker => message.toUpperCase().includes(marker));
+}
+
 // Simulated OCR processing
 async function simulateOCRProcessing(invoice: { id: number; filename: string }) {
   // Simulate processing time
@@ -80,6 +86,7 @@ async function simulateOCRProcessing(invoice: { id: number; filename: string }) 
 }
 
 export function registerRoutes(app: Express): Server {
+  // File upload endpoint
   app.post("/api/invoices/upload", upload.single("file"), async (req, res) => {
     try {
       if (!req.file) {
@@ -107,6 +114,41 @@ export function registerRoutes(app: Express): Server {
         res.status(400).json({ message: error.message });
       } else {
         res.status(500).json({ message: "Error processing upload" });
+      }
+    }
+  });
+
+  // SMS processing endpoint
+  app.post("/api/invoices/sms", async (req, res) => {
+    try {
+      const { message, mediaUrl } = req.body;
+
+      // Check for invoice markers in message
+      if (!hasInvoiceMarkers(message)) {
+        return res.status(400).json({ message: "No invoice markers found in message" });
+      }
+
+      // Create invoice record for SMS
+      const invoice = await storage.createInvoice(insertInvoiceSchema.parse({
+        filename: `SMS-${Date.now()}`,
+        fileType: 'jpg', // Assuming MMS attachments are images
+        status: "processing",
+        source: "sms"
+      }));
+
+      // Start OCR processing in background
+      simulateOCRProcessing(invoice).catch(console.error);
+
+      res.json({ 
+        message: "Invoice received and processing started",
+        invoice 
+      });
+    } catch (error) {
+      console.error('SMS processing error:', error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Error processing SMS" });
       }
     }
   });

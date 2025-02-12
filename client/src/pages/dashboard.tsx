@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -16,19 +16,60 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { type Invoice } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   FileText, 
   AlertTriangle, 
   CheckCircle2, 
   Clock,
-  Shield 
+  Shield,
+  Send
 } from "lucide-react";
+import { useState } from "react";
 
 export default function Dashboard() {
+  const [smsMessage, setSmsMessage] = useState("");
+  const { toast } = useToast();
   const { data: invoices, isLoading } = useQuery<Invoice[]>({
     queryKey: ["/api/invoices"],
   });
+
+  const sendSmsMutation = useMutation({
+    mutationFn: async (message: string) => {
+      const res = await apiRequest("POST", "/api/invoices/sms", { message });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "SMS Processed",
+        description: "Your message is being processed",
+      });
+      setSmsMessage("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSendSms = () => {
+    if (!smsMessage.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a message",
+        variant: "destructive",
+      });
+      return;
+    }
+    sendSmsMutation.mutate(smsMessage);
+  };
 
   if (isLoading) {
     return (
@@ -119,6 +160,32 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* SMS Test Form */}
+      <Card className="border-2">
+        <CardHeader>
+          <CardTitle>Test SMS Processing</CardTitle>
+          <CardDescription>
+            Send a test SMS message with invoice markers (INV or RO)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <Input
+              placeholder="Enter message (include INV or RO)"
+              value={smsMessage}
+              onChange={(e) => setSmsMessage(e.target.value)}
+            />
+            <Button 
+              onClick={handleSendSms}
+              disabled={sendSmsMutation.isPending}
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Send
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="border-2">
         <CardHeader>
           <CardTitle>Recent Invoices</CardTitle>
@@ -131,6 +198,7 @@ export default function Dashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>File Name</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>OCR Confidence</TableHead>
                 <TableHead>DRP Compliant</TableHead>
@@ -141,6 +209,11 @@ export default function Dashboard() {
               {invoices?.map((invoice) => (
                 <TableRow key={invoice.id}>
                   <TableCell className="font-medium">{invoice.filename}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {invoice.source}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {getStatusIcon(invoice.status)}

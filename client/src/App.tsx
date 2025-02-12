@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import Upload from "@/pages/upload";
 import Dashboard from "@/pages/dashboard";
 import InvoiceDetail from "@/pages/invoice-detail";
+import Settings from "@/pages/settings";
 
 function Router() {
   return (

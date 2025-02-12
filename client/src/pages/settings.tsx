@@ -85,6 +85,22 @@ export default function Settings() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Links</CardTitle>
+          <CardDescription>
+            Project resources and documentation
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => window.open('https://github.com/resetroot99/invOCR', '_blank')}>
+              View on GitHub
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

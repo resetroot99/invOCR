@@ -7,6 +7,7 @@ import path from "path";
 import { processOCR } from "./services/ocr";
 import { handleSimultaneousPosting } from "./services/integrations";
 import { phoneService } from "./services/phone";
+import fs from 'fs'; // Import fs module
 
 // Configure multer for file upload with storage configuration
 const upload = multer({
@@ -191,6 +192,54 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Error listing temporary numbers" });
     }
   });
+
+  // Add this new endpoint to serve invoice images
+  app.get("/api/invoices/:id/image", async (req, res) => {
+    try {
+      const invoiceId = parseInt(req.params.id);
+      const invoice = await storage.getInvoices().then(invoices =>
+        invoices.find(inv => inv.id === invoiceId)
+      );
+
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+
+      // Get the file path from the uploads directory
+      const filePath = path.join('uploads', path.basename(invoice.filename));
+
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "Invoice image not found" });
+      }
+
+      // Serve the file
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error('Image fetch error:', error);
+      res.status(500).json({ message: "Error fetching invoice image" });
+    }
+  });
+
+  // Add this endpoint to get a single invoice
+  app.get("/api/invoices/:id", async (req, res) => {
+    try {
+      const invoiceId = parseInt(req.params.id);
+      const invoice = await storage.getInvoices().then(invoices =>
+        invoices.find(inv => inv.id === invoiceId)
+      );
+
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+
+      res.json(invoice);
+    } catch (error) {
+      console.error('Invoice fetch error:', error);
+      res.status(500).json({ message: "Error fetching invoice" });
+    }
+  });
+
 
   const httpServer = createServer(app);
   return httpServer;

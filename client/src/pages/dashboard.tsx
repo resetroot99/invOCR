@@ -21,17 +21,19 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { type Invoice } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { 
-  FileText, 
-  AlertTriangle, 
-  CheckCircle2, 
+import {
+  FileText,
+  AlertTriangle,
+  CheckCircle2,
   Clock,
   Shield,
   Send
 } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 export default function Dashboard() {
+  const [_, navigate] = useLocation();
   const [smsMessage, setSmsMessage] = useState("");
   const { toast } = useToast();
   const { data: invoices, isLoading } = useQuery<Invoice[]>({
@@ -175,7 +177,7 @@ export default function Dashboard() {
               value={smsMessage}
               onChange={(e) => setSmsMessage(e.target.value)}
             />
-            <Button 
+            <Button
               onClick={handleSendSms}
               disabled={sendSmsMutation.isPending}
             >
@@ -207,7 +209,7 @@ export default function Dashboard() {
             </TableHeader>
             <TableBody>
               {invoices?.map((invoice) => (
-                <TableRow key={invoice.id}>
+                <TableRow key={invoice.id} className="cursor-pointer hover:bg-accent/50" onClick={() => navigate(`/invoice/${invoice.id}`)}>
                   <TableCell className="font-medium">{invoice.filename}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
@@ -225,14 +227,14 @@ export default function Dashboard() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {invoice.data?.ocrConfidence !== undefined ? 
-                      `${Math.round(invoice.data.ocrConfidence * 100)}%` : 
+                    {invoice.data?.ocrConfidence !== undefined ?
+                      `${Math.round(invoice.data.ocrConfidence * 100)}%` :
                       'N/A'
                     }
                   </TableCell>
                   <TableCell>
-                    {invoice.data?.drpCompliant ? 
-                      <CheckCircle2 className="h-4 w-4 text-green-500" /> : 
+                    {invoice.data?.drpCompliant ?
+                      <CheckCircle2 className="h-4 w-4 text-green-500" /> :
                       <AlertTriangle className="h-4 w-4 text-yellow-500" />
                     }
                   </TableCell>

@@ -7,6 +7,7 @@ import Layout from "@/components/layout";
 import Home from "@/pages/home";
 import Upload from "@/pages/upload";
 import Dashboard from "@/pages/dashboard";
+import InvoiceDetail from "@/pages/invoice-detail";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/upload" component={Upload} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/invoice/:id" component={InvoiceDetail} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

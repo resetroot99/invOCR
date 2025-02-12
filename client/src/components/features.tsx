@@ -1,61 +1,71 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, MessageSquare, Upload, Cog, Database, Shield } from "lucide-react";
+import { 
+  FileSearch, 
+  MessageSquare, 
+  Upload, 
+  Cog, 
+  Database, 
+  Shield,
+  FileText,
+  Check,
+  AlertTriangle
+} from "lucide-react";
 
 export default function Features() {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      <Card>
+      <Card className="border-2 hover:border-primary/50 transition-colors">
         <CardHeader>
-          <Mail className="h-8 w-8 mb-2 text-primary" />
-          <CardTitle>Multi-Channel Input</CardTitle>
+          <FileSearch className="h-8 w-8 mb-2 text-primary" />
+          <CardTitle>Smart OCR Processing</CardTitle>
         </CardHeader>
         <CardContent>
-          Support for email attachments, SMS/MMS, direct upload, and automated scanning.
+          Advanced OCR with multi-language support and real-time text extraction for PDFs and images.
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border-2 hover:border-primary/50 transition-colors">
         <CardHeader>
-          <Cog className="h-8 w-8 mb-2 text-primary" />
-          <CardTitle>Advanced Processing</CardTitle>
+          <FileText className="h-8 w-8 mb-2 text-primary" />
+          <CardTitle>Invoice Processing</CardTitle>
         </CardHeader>
         <CardContent>
-          AI-powered OCR with real-time validation and DRP compliance checking.
+          Automated data extraction with pattern matching for invoice numbers, dates, and amounts.
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border-2 hover:border-primary/50 transition-colors">
+        <CardHeader>
+          <Check className="h-8 w-8 mb-2 text-primary" />
+          <CardTitle>Validation & Compliance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          Real-time part verification, price validation, and DRP compliance checking.
+        </CardContent>
+      </Card>
+      <Card className="border-2 hover:border-primary/50 transition-colors">
         <CardHeader>
           <Database className="h-8 w-8 mb-2 text-primary" />
-          <CardTitle>Enterprise Integration</CardTitle>
+          <CardTitle>System Integration</CardTitle>
         </CardHeader>
         <CardContent>
           Seamless integration with CCC ONE, Mitchell, Audatex, and QuickBooks.
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <Shield className="h-8 w-8 mb-2 text-primary" />
-          <CardTitle>DRP Compliance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          Automatic rule enforcement and part verification in real-time.
-        </CardContent>
-      </Card>
-      <Card>
+      <Card className="border-2 hover:border-primary/50 transition-colors">
         <CardHeader>
           <MessageSquare className="h-8 w-8 mb-2 text-primary" />
           <CardTitle>Smart Messaging</CardTitle>
         </CardHeader>
         <CardContent>
-          Automated notifications and status updates for seamless communication.
+          Email and SMS processing with automated status updates and notifications.
         </CardContent>
       </Card>
-      <Card>
+      <Card className="border-2 hover:border-primary/50 transition-colors">
         <CardHeader>
-          <Upload className="h-8 w-8 mb-2 text-primary" />
-          <CardTitle>Auto-Posting</CardTitle>
+          <AlertTriangle className="h-8 w-8 mb-2 text-primary" />
+          <CardTitle>Error Prevention</CardTitle>
         </CardHeader>
         <CardContent>
-          Direct system posting with complete audit trail and error handling.
+          95% reduction in manual entry errors with automated validation and checks.
         </CardContent>
       </Card>
     </div>

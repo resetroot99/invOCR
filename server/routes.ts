@@ -4,10 +4,16 @@ import { storage } from "./storage";
 import multer from "multer";
 import { insertInvoiceSchema } from "@shared/schema";
 import path from "path";
+import { processOCR } from "./services/ocr";
 
-// Configure multer for file upload
+// Configure multer for file upload with storage configuration
 const upload = multer({
-  dest: "uploads/",
+  storage: multer.diskStorage({
+    destination: 'uploads/',
+    filename: (_req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    }
+  }),
   fileFilter: (_req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
     if (allowedTypes.includes(file.mimetype)) {
@@ -41,50 +47,6 @@ function hasInvoiceMarkers(message: string): boolean {
   return markers.some(marker => message.toUpperCase().includes(marker));
 }
 
-// Simulated OCR processing
-async function simulateOCRProcessing(invoice: { id: number; filename: string }) {
-  // Simulate processing time
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  // Generate simulated OCR data
-  const ocrData = {
-    invoiceNumber: `INV-${Math.floor(Math.random() * 10000)}`,
-    roNumber: `RO${Math.floor(Math.random() * 100000)}`,
-    date: new Date().toISOString().split('T')[0],
-    totalAmount: Math.floor(Math.random() * 1000000) / 100,
-    parts: [
-      {
-        partNumber: `PART-${Math.floor(Math.random() * 1000)}`,
-        description: "Front Bumper Assembly",
-        price: Math.floor(Math.random() * 50000) / 100,
-        verified: Math.random() > 0.2,
-        oem: Math.random() > 0.3,
-      },
-      {
-        partNumber: `PART-${Math.floor(Math.random() * 1000)}`,
-        description: "Headlight Assembly",
-        price: Math.floor(Math.random() * 30000) / 100,
-        verified: Math.random() > 0.2,
-        oem: Math.random() > 0.3,
-      }
-    ],
-    ocrConfidence: Math.random() * 0.3 + 0.7, // 70-100% confidence
-    drpCompliant: Math.random() > 0.2, // 80% chance of compliance
-    validationResults: {
-      priceVerified: true,
-      partNumbersVerified: true,
-      drpRulesChecked: true,
-      errors: []
-    }
-  };
-
-  // Update invoice with OCR results
-  await storage.updateInvoice(invoice.id, {
-    status: "completed",
-    data: ocrData
-  });
-}
-
 export function registerRoutes(app: Express): Server {
   // File upload endpoint
   app.post("/api/invoices/upload", upload.single("file"), async (req, res) => {
@@ -105,7 +67,7 @@ export function registerRoutes(app: Express): Server {
       }));
 
       // Start OCR processing in background
-      simulateOCRProcessing(invoice).catch(console.error);
+      processOCR(invoice, req.file.path).catch(console.error);
 
       res.json(invoice);
     } catch (error) {
@@ -131,13 +93,25 @@ export function registerRoutes(app: Express): Server {
       // Create invoice record for SMS
       const invoice = await storage.createInvoice(insertInvoiceSchema.parse({
         filename: `SMS-${Date.now()}`,
-        fileType: 'jpg', // Assuming MMS attachments are images
+        fileType: 'jpg',
         status: "processing",
         source: "sms"
       }));
 
-      // Start OCR processing in background
-      simulateOCRProcessing(invoice).catch(console.error);
+      // If there's a media URL, process it with OCR
+      if (mediaUrl) {
+        // In a real implementation, you would:
+        // 1. Download the media from the URL
+        // 2. Save it to the uploads directory
+        // 3. Process with OCR
+        processOCR(invoice, mediaUrl).catch(console.error);
+      } else {
+        // Handle text-only messages
+        await storage.updateInvoice(invoice.id, {
+          status: "failed",
+          processingErrors: ["No image attachment found in SMS"]
+        });
+      }
 
       res.json({ 
         message: "Invoice received and processing started",

@@ -1,3 +1,4 @@
+import React, { useRef } from "react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -9,16 +10,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { Upload, File } from "lucide-react";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const res = await apiRequest("POST", "/api/invoices/upload", formData);
+      const res = await fetch("/api/invoices/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Upload failed");
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -37,10 +45,14 @@ export default function UploadPage() {
     },
   });
 
-  const onDrop = (e: React.DragEvent) => {
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) setFile(droppedFile);
+  };
+
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
   };
 
   const onSubmit = async () => {
@@ -81,11 +93,16 @@ export default function UploadPage() {
                 <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
                 <p>Drop your file here or click to browse</p>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   className="hidden"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  accept=".pdf,.jpg,.jpeg,.png"
                 />
-                <Button variant="outline" onClick={() => document.querySelector('input[type="file"]')?.click()}>
+                <Button 
+                  variant="outline" 
+                  onClick={handleFileSelect}
+                >
                   Select File
                 </Button>
               </div>

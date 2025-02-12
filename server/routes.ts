@@ -4,7 +4,22 @@ import { storage } from "./storage";
 import multer from "multer";
 import { insertInvoiceSchema } from "@shared/schema";
 
-const upload = multer({ dest: "uploads/" });
+// Configure multer for file upload
+const upload = multer({
+  dest: "uploads/",
+  fileFilter: (_req, file, cb) => {
+    // Allow only specific file types
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPG, PNG and PDF files are allowed.'));
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
 
 export function registerRoutes(app: Express): Server {
   app.post("/api/invoices/upload", upload.single("file"), async (req, res) => {
@@ -18,7 +33,12 @@ export function registerRoutes(app: Express): Server {
 
       res.json(invoice);
     } catch (error) {
-      res.status(500).json({ message: "Error processing upload" });
+      console.error('Upload error:', error);
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Error processing upload" });
+      }
     }
   });
 
@@ -27,6 +47,7 @@ export function registerRoutes(app: Express): Server {
       const invoices = await storage.getInvoices();
       res.json(invoices);
     } catch (error) {
+      console.error('Fetch error:', error);
       res.status(500).json({ message: "Error fetching invoices" });
     }
   });

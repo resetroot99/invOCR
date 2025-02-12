@@ -1,6 +1,55 @@
+
+# Dependencies
 node_modules
 dist
+
+# Environment
+.env
+.env.*
+*.env
+
+# Secrets
+**/secrets/*
+**/*.key
+**/*.pem
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Testing
+coverage
+
+# OS
 .DS_Store
-server/public
-vite.config.ts.*
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build
+build/
+dist/
 *.tar.gz
+
+# Temp files
+*.tmp
+*~
+
+# Uploads
+uploads/*
+!uploads/.gitkeep

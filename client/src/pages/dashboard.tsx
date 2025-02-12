@@ -162,31 +162,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* SMS Test Form */}
-      <Card className="border-2">
-        <CardHeader>
-          <CardTitle>Test SMS Processing</CardTitle>
-          <CardDescription>
-            Send a test SMS message with invoice markers (INV or RO)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <Input
-              placeholder="Enter message (include INV or RO)"
-              value={smsMessage}
-              onChange={(e) => setSmsMessage(e.target.value)}
-            />
-            <Button
-              onClick={handleSendSms}
-              disabled={sendSmsMutation.isPending}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Send
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      
 
       <Card className="border-2">
         <CardHeader>

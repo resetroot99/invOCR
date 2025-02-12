@@ -17,6 +17,7 @@ function Router() {
         <Route path="/upload" component={Upload} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/invoice/:id" component={InvoiceDetail} />
+        <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

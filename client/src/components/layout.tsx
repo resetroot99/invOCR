@@ -73,10 +73,18 @@ export default function Layout({ children }: SidebarProps) {
             <div className="px-3 py-2">
               <h3 className="mb-2 px-4 text-sm font-medium">Settings</h3>
               <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start rounded-lg">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Button>
+                <Link href="/settings">
+                  <Button
+                    variant={location === "/settings" ? "secondary" : "ghost"}
+                    className="w-full justify-start rounded-lg"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                    {location === "/settings" && (
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    )}
+                  </Button>
+                </Link>
                 <Button variant="ghost" className="w-full justify-start rounded-lg text-red-500 hover:text-red-600">
                   <AlertCircle className="mr-2 h-4 w-4" />
                   Support

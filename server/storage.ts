@@ -9,6 +9,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getInvoices(): Promise<Invoice[]>;
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+  updateInvoice(id: number, data: Partial<Invoice>): Promise<Invoice>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -33,6 +34,18 @@ export class DatabaseStorage implements IStorage {
 
   async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
     const [invoice] = await db.insert(invoices).values(insertInvoice).returning();
+    return invoice;
+  }
+
+  async updateInvoice(id: number, data: Partial<Invoice>): Promise<Invoice> {
+    const [invoice] = await db
+      .update(invoices)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(invoices.id, id))
+      .returning();
     return invoice;
   }
 }

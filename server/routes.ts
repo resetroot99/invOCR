@@ -35,6 +35,50 @@ function getFileType(mimetype: string): 'pdf' | 'jpg' | 'png' {
   }
 }
 
+// Simulated OCR processing
+async function simulateOCRProcessing(invoice: { id: number; filename: string }) {
+  // Simulate processing time
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  // Generate simulated OCR data
+  const ocrData = {
+    invoiceNumber: `INV-${Math.floor(Math.random() * 10000)}`,
+    roNumber: `RO${Math.floor(Math.random() * 100000)}`,
+    date: new Date().toISOString().split('T')[0],
+    totalAmount: Math.floor(Math.random() * 1000000) / 100,
+    parts: [
+      {
+        partNumber: `PART-${Math.floor(Math.random() * 1000)}`,
+        description: "Front Bumper Assembly",
+        price: Math.floor(Math.random() * 50000) / 100,
+        verified: Math.random() > 0.2,
+        oem: Math.random() > 0.3,
+      },
+      {
+        partNumber: `PART-${Math.floor(Math.random() * 1000)}`,
+        description: "Headlight Assembly",
+        price: Math.floor(Math.random() * 30000) / 100,
+        verified: Math.random() > 0.2,
+        oem: Math.random() > 0.3,
+      }
+    ],
+    ocrConfidence: Math.random() * 0.3 + 0.7, // 70-100% confidence
+    drpCompliant: Math.random() > 0.2, // 80% chance of compliance
+    validationResults: {
+      priceVerified: true,
+      partNumbersVerified: true,
+      drpRulesChecked: true,
+      errors: []
+    }
+  };
+
+  // Update invoice with OCR results
+  await storage.updateInvoice(invoice.id, {
+    status: "completed",
+    data: ocrData
+  });
+}
+
 export function registerRoutes(app: Express): Server {
   app.post("/api/invoices/upload", upload.single("file"), async (req, res) => {
     try {
@@ -49,14 +93,12 @@ export function registerRoutes(app: Express): Server {
       const invoice = await storage.createInvoice(insertInvoiceSchema.parse({ 
         filename,
         fileType,
-        status: "processing"
+        status: "processing",
+        source: "upload"
       }));
 
-      // In a real application, you would:
-      // 1. Send the file for OCR processing
-      // 2. Update the invoice record with extracted data
-      // 3. Validate against DRP rules
-      // 4. Verify part numbers and prices
+      // Start OCR processing in background
+      simulateOCRProcessing(invoice).catch(console.error);
 
       res.json(invoice);
     } catch (error) {

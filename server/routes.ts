@@ -45,15 +45,12 @@ export function registerRoutes(app: Express): Server {
       const filename = req.file.originalname;
       const fileType = getFileType(req.file.mimetype);
 
-      // Create invoice record with file information
-      const invoice = await storage.createInvoice({ 
+      // Create invoice record
+      const invoice = await storage.createInvoice(insertInvoiceSchema.parse({ 
         filename,
         fileType,
-        data: {
-          ocrConfidence: 0,
-          drpCompliant: false
-        }
-      });
+        status: "processing"
+      }));
 
       // In a real application, you would:
       // 1. Send the file for OCR processing

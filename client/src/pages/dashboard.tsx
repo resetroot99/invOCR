@@ -63,7 +63,7 @@ export default function Dashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{invoices?.length}</div>
+            <div className="text-2xl font-bold">{invoices?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
               All time processed
             </p>
@@ -78,7 +78,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {invoices?.filter((i) => i.status === "processing").length}
+              {invoices?.filter((i) => i.status === "processing").length || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               Currently in OCR
@@ -94,7 +94,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {invoices?.filter((i) => i.status === "completed").length}
+              {invoices?.filter((i) => i.status === "completed").length || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               Successfully processed
@@ -164,7 +164,7 @@ export default function Dashboard() {
                     }
                   </TableCell>
                   <TableCell>
-                    {new Date(invoice.createdAt).toLocaleDateString()}
+                    {invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString() : 'N/A'}
                   </TableCell>
                 </TableRow>
               ))}
